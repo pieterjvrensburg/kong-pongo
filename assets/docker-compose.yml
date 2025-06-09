@@ -94,6 +94,11 @@ services:
       - "./redis/server.crt:/usr/local/etc/redis/server.crt"
       - "./redis/server.key:/usr/local/etc/redis/server.key"
     command: >-
+      --requirepass pass
+      --cluster-enabled yes
+      --cluster-announce-hostname redis
+      --cluster-announce-ip redis
+      --cluster-announce-port 6379
       --tls-port 6380
       --tls-cert-file /usr/local/etc/redis/server.crt
       --tls-key-file /usr/local/etc/redis/server.key
@@ -112,6 +117,8 @@ services:
       pongo-test-network:
         aliases:
           - ${SERVICE_NETWORK_NAME}-redis.${SERVICE_NETWORK_NAME}
+    post_start:
+      - command: ["redis-cli", "--pass", "pass", "--no-auth-warning", "cluster", "addslotsrange", "0", "16383"]
 
   squid:
     image: ${SQUID_IMAGE:-sameersbn/squid:3.5.27-2}
