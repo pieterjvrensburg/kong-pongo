@@ -48,7 +48,7 @@ services:
       - pongo-test-network
 
   postgres:
-    image: ${POSTGRES_IMAGE:-postgres:9.5}
+    image: postgres:9.5
     environment:
       POSTGRES_USER: kong
       POSTGRES_DB: kong_tests
@@ -71,7 +71,7 @@ services:
           - ${SERVICE_NETWORK_NAME}-postgres.${SERVICE_NETWORK_NAME}
 
   cassandra:
-    image: ${CASSANDRA_IMAGE:-cassandra:3.11}
+    image: cassandra:3.11
     environment:
       MAX_HEAP_SIZE: 256M
       HEAP_NEWSIZE: 128M
@@ -89,7 +89,7 @@ services:
           - ${SERVICE_NETWORK_NAME}-cassandra.${SERVICE_NETWORK_NAME}
 
   redis:
-    image: ${REDIS_IMAGE:-redis:6.2.6-alpine}
+    image: redis:alpine}
     volumes:
       - "./redis/server.crt:/usr/local/etc/redis/server.crt"
       - "./redis/server.key:/usr/local/etc/redis/server.key"
@@ -121,7 +121,7 @@ services:
       - command: ["redis-cli", "--pass", "pass", "--no-auth-warning", "cluster", "addslotsrange", "0", "16383"]
 
   squid:
-    image: ${SQUID_IMAGE:-sameersbn/squid:3.5.27-2}
+    image: sameersbn/squid:3.5.27-2
     volumes:
       - ./squid/squid.conf:/etc/squid/squid.conf
       - ./squid/passwords:/etc/squid/passwords
@@ -139,7 +139,7 @@ services:
           - ${SERVICE_NETWORK_NAME}-squid.${SERVICE_NETWORK_NAME}
 
   grpcbin:
-    image: ${GRPCBIN_IMAGE:-moul/grpcbin:latest}
+    image: moul/grpcbin:latest
     healthcheck:
       interval: 5s
       retries: 10
