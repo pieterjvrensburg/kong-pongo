@@ -5,11 +5,7 @@ networks:
 services:
   expose:
     image: pongo-expose
-    build:
-      context: ./expose
-      args:
-        HTTP_PROXY: ""
-        HTTPS_PROXY: ""
+    build: ./expose
     ports:
       - "8000:8000"
       - "8001:8001"
@@ -41,14 +37,13 @@ services:
       - -e
       - /ready
       timeout: 10s
-      disable: false
     restart: on-failure
     stop_signal: SIGKILL
     networks:
       - pongo-test-network
 
   postgres:
-    image: postgres:9.5
+    image: ${POSTGRES_IMAGE:-postgres:9.5}
     environment:
       POSTGRES_USER: kong
       POSTGRES_DB: kong_tests
@@ -62,7 +57,6 @@ services:
       - --dbname=kong_tests
       - --username=kong
       timeout: 10s
-      disable: false
     restart: on-failure
     stop_signal: SIGKILL
     networks:
@@ -71,7 +65,7 @@ services:
           - ${SERVICE_NETWORK_NAME}-postgres.${SERVICE_NETWORK_NAME}
 
   cassandra:
-    image: cassandra:3.11
+    image: ${CASSANDRA_IMAGE:-cassandra:3.11}
     environment:
       MAX_HEAP_SIZE: 256M
       HEAP_NEWSIZE: 128M
@@ -80,7 +74,6 @@ services:
       interval: 5s
       timeout: 10s
       retries: 10
-      disable: false
     restart: on-failure
     stop_signal: SIGKILL
     networks:
@@ -89,7 +82,7 @@ services:
           - ${SERVICE_NETWORK_NAME}-cassandra.${SERVICE_NETWORK_NAME}
 
   redis:
-    image: redis:alpine}
+    image: ${REDIS_IMAGE:-redis:6.2.6-alpine}
     volumes:
       - "./redis/server.crt:/usr/local/etc/redis/server.crt"
       - "./redis/server.key:/usr/local/etc/redis/server.key"
@@ -110,7 +103,6 @@ services:
       interval: 5s
       timeout: 10s
       retries: 10
-      disable: false
     restart: on-failure
     stop_signal: SIGKILL
     networks:
@@ -121,7 +113,7 @@ services:
       - command: ["redis-cli", "--pass", "pass", "--no-auth-warning", "cluster", "addslotsrange", "0", "16383"]
 
   squid:
-    image: sameersbn/squid:3.5.27-2
+    image: ${SQUID_IMAGE:-sameersbn/squid:3.5.27-2}
     volumes:
       - ./squid/squid.conf:/etc/squid/squid.conf
       - ./squid/passwords:/etc/squid/passwords
@@ -130,7 +122,6 @@ services:
       retries: 10
       test: ["CMD", "kill", "-0", "1"]
       timeout: 10s
-      disable: false
     restart: on-failure
     stop_signal: SIGKILL
     networks:
@@ -139,13 +130,12 @@ services:
           - ${SERVICE_NETWORK_NAME}-squid.${SERVICE_NETWORK_NAME}
 
   grpcbin:
-    image: moul/grpcbin:latest
+    image: ${GRPCBIN_IMAGE:-moul/grpcbin:latest}
     healthcheck:
       interval: 5s
       retries: 10
       test: ["CMD", "kill", "-0", "1"]
       timeout: 10s
-      disable: false
     restart: on-failure
     stop_signal: SIGKILL
     networks:
@@ -154,7 +144,7 @@ services:
           - ${SERVICE_NETWORK_NAME}-grpcbin.${SERVICE_NETWORK_NAME}
 
   kong:
-    image: ignore_if_not_provided
+    image: ${KONG_TEST_IMAGE:-ignore_if_not_provided}
     environment:
       - KONG_CASSANDRA_CONTACT_POINTS=${SERVICE_NETWORK_NAME}-cassandra.${SERVICE_NETWORK_NAME}
       - KONG_PG_HOST=${SERVICE_NETWORK_NAME}-postgres.${SERVICE_NETWORK_NAME}
@@ -170,7 +160,6 @@ services:
       - health
       - --prefix=/kong-plugin/servroot/
       timeout: 10s
-      disable: false
     extra_hosts:
     - "host.docker.internal:host-gateway"
     networks:
