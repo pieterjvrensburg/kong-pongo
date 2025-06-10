@@ -112,17 +112,6 @@ services:
         aliases:
           - ${SERVICE_NETWORK_NAME}-redis.${SERVICE_NETWORK_NAME}
 
-  redissetup:
-    image: ${REDIS_IMAGE:-redis:6.2.6-alpine}
-    depends_on:
-      - redis
-    restart: "no"
-    networks:
-      pongo-test-network:
-        aliases:
-          - ${SERVICE_NETWORK_NAME}-redis.${SERVICE_NETWORK_NAME}
-    entrypoint: ["redis-cli", "--pass", "pass", "--no-auth-warning", "cluster", "addslotsrange", "0", "16383"]
-
   squid:
     image: ${SQUID_IMAGE:-sameersbn/squid:3.5.27-2}
     volumes:
