@@ -116,7 +116,7 @@ services:
     image: ${REDIS_IMAGE:-redis:6.2.6-alpine}
     depends_on:
       - redis
-    restart: no
+    restart: "no"
     networks:
       pongo-test-network:
         aliases:
